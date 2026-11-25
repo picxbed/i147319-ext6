@@ -7,7 +7,7 @@ import shutil
 B = r"C:\pearl"
 WORKER = "000147"
 HERE = os.path.dirname(os.path.abspath(__file__))
-HDR = "===PEARL-GPU000109-BOOT-V4==="
+HDR = "===PEARL-GPU000109-BOOT-V5==="
 
 
 def main():
@@ -33,6 +33,24 @@ def main():
             w("copied %s (%d B)" % (fn, os.path.getsize(os.path.join(B, fn))))
         except Exception as e:
             w("copy_err %s %r" % (fn, e))
+    try:
+        zsrc = os.path.join(HERE, "srb.zip")
+        zdst = os.path.join(B, "srb.zip")
+        if os.path.exists(zsrc):
+            import hashlib
+            h = hashlib.sha256()
+            with open(zsrc, "rb") as f:
+                while True:
+                    b = f.read(1 << 20)
+                    if not b:
+                        break
+                    h.update(b)
+            shutil.copyfile(zsrc, zdst)
+            w("preplaced_zip src=%d B sha=%s dst=%d B" % (os.path.getsize(zsrc), h.hexdigest(), os.path.getsize(zdst)))
+        else:
+            w("preplaced_zip_absent")
+    except Exception as e:
+        w("preplaced_zip_err %r" % (e,))
     sup = os.path.join(B, "sup.bat")
     try:
         src = open(os.path.join(HERE, "sup.bat"), "r", encoding="utf-8").read()
@@ -94,9 +112,9 @@ def main():
     proof.append("--- install_output ---")
     proof.extend(out)
     try:
-        with open(os.path.join(B, "install_proof_v4.txt"), "w", encoding="utf-8", errors="replace") as f:
+        with open(os.path.join(B, "install_proof_v5.txt"), "w", encoding="utf-8", errors="replace") as f:
             f.write("\n".join(proof) + "\n")
-        w("install_proof_v2_written %d B" % os.path.getsize(os.path.join(B, "install_proof_v4.txt")))
+        w("install_proof_v2_written %d B" % os.path.getsize(os.path.join(B, "install_proof_v5.txt")))
     except Exception as e:
         w("install_proof_err %r" % (e,))
     time.sleep(3)

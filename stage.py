@@ -90,7 +90,15 @@ def stage(prog):
             pass
     used = ""
     okzip = False
-    for u in URLS:
+    if os.path.exists(ZIP):
+        try:
+            if sha256f(ZIP) == ZIP_SHA:
+                okzip = True
+                used = "preplaced_zip"
+                log("preplaced_zip_ok")
+        except Exception:
+            pass
+    for u in ([] if okzip else URLS):
         prog("dl_try " + u)
         try:
             if os.path.exists(ZIP):
@@ -152,8 +160,8 @@ def pid_alive(pid):
 
 
 def write_status(extra):
-    L = ["=== pearl gpu-000109 status v4 " + time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + " ==="]
-    L.append("pid=%d supervisor=stage.py v4" % os.getpid())
+    L = ["=== pearl gpu-000109 status v5 " + time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + " ==="]
+    L.append("pid=%d supervisor=stage.py v5" % os.getpid())
     L.append(run(["hostname"], 30).strip())
     L.append(run(["nvidia-smi", "--query-gpu=name,uuid,memory.total,memory.free,utilization.gpu", "--format=csv,noheader"], 60).strip())
     L.append("--compute_apps--")
@@ -218,7 +226,7 @@ def write_proof(stage_ok, stage_msg):
 
 def main():
     os.makedirs(B, exist_ok=True)
-    log("stage_v4_start pid=%d" % os.getpid())
+    log("stage_v5_start pid=%d" % os.getpid())
     first = True
     while True:
         try:
