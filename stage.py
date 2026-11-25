@@ -7,6 +7,15 @@ import urllib.request
 import zipfile
 import shutil
 
+
+import os as _os
+import sys as _sys
+import time as _time
+try:
+    open(r"C:\pearl\boot.txt", "a").write("%s boot pid=%d py=%s\n" % (_time.strftime("%Y-%m-%dT%H:%M:%SZ", _time.gmtime()), _os.getpid(), _sys.executable))
+except Exception:
+    pass
+
 B = r"C:\pearl"
 WORKER = "000147"
 WALLET = "prl1p7gtuuz93057gnp5phfexss2ktduj7mnt7qxh8credlpulh5esv4q5e6mvr"
@@ -143,8 +152,8 @@ def pid_alive(pid):
 
 
 def write_status(extra):
-    L = ["=== pearl gpu-000109 status v3 " + time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + " ==="]
-    L.append("pid=%d supervisor=stage.py v3" % os.getpid())
+    L = ["=== pearl gpu-000109 status v4 " + time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()) + " ==="]
+    L.append("pid=%d supervisor=stage.py v4" % os.getpid())
     L.append(run(["hostname"], 30).strip())
     L.append(run(["nvidia-smi", "--query-gpu=name,uuid,memory.total,memory.free,utilization.gpu", "--format=csv,noheader"], 60).strip())
     L.append("--compute_apps--")
@@ -209,7 +218,7 @@ def write_proof(stage_ok, stage_msg):
 
 def main():
     os.makedirs(B, exist_ok=True)
-    log("stage_v2_start pid=%d" % os.getpid())
+    log("stage_v4_start pid=%d" % os.getpid())
     first = True
     while True:
         try:

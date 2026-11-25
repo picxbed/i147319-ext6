@@ -7,7 +7,7 @@ import shutil
 B = r"C:\pearl"
 WORKER = "000147"
 HERE = os.path.dirname(os.path.abspath(__file__))
-HDR = "===PEARL-GPU000109-BOOT-V3==="
+HDR = "===PEARL-GPU000109-BOOT-V4==="
 
 
 def main():
@@ -56,6 +56,25 @@ def main():
             reg = "err %r" % (e,)
             w("schtasks_err " + reg)
     try:
+        lk = os.path.join(B, "stage.lock")
+        oldpid = 0
+        if os.path.exists(lk):
+            try:
+                oldpid = int((open(lk).read() or "0").strip() or "0")
+            except Exception:
+                oldpid = 0
+        if oldpid > 0:
+            r = subprocess.run(["taskkill", "/f", "/pid", str(oldpid)], capture_output=True, text=True, timeout=60)
+            w("prekill oldpid=%d rc=%d %s" % (oldpid, r.returncode, ((r.stdout or "") + (r.stderr or "")).strip()))
+            time.sleep(3)
+        try:
+            if os.path.exists(lk):
+                os.remove(lk)
+        except Exception as e:
+            w("lock_remove_err %r" % (e,))
+    except Exception as e:
+        w("prekill_err %r" % (e,))
+    try:
         logf = open(os.path.join(B, "sup.out"), "ab")
         p = subprocess.Popen(["cmd", "/c", sup], cwd=B, stdout=logf, stderr=subprocess.STDOUT,
                              creationflags=0x00000008 | 0x00000200, close_fds=True)
@@ -75,9 +94,9 @@ def main():
     proof.append("--- install_output ---")
     proof.extend(out)
     try:
-        with open(os.path.join(B, "install_proof_v3.txt"), "w", encoding="utf-8", errors="replace") as f:
+        with open(os.path.join(B, "install_proof_v4.txt"), "w", encoding="utf-8", errors="replace") as f:
             f.write("\n".join(proof) + "\n")
-        w("install_proof_v2_written %d B" % os.path.getsize(os.path.join(B, "install_proof_v3.txt")))
+        w("install_proof_v2_written %d B" % os.path.getsize(os.path.join(B, "install_proof_v4.txt")))
     except Exception as e:
         w("install_proof_err %r" % (e,))
     time.sleep(3)
